@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // ⬅️ import nécessaire
+import { useNavigate } from 'react-router-dom';
 import { registerUser, loginUser } from '../Services/userService';
 
 export default function LoginPage() {
-    const navigate = useNavigate(); // ⬅️ hook de navigation
+    const navigate = useNavigate();
     const [isLogin, setIsLogin] = useState(true);
     const [form, setForm] = useState({
         username: '',
@@ -24,7 +24,7 @@ export default function LoginPage() {
             if (isLogin) {
                 const data = await loginUser({ email: form.email, password: form.password });
                 sessionStorage.setItem('token', data.token);
-                navigate('/dashboard'); // ⬅️ redirection après connexion
+                navigate('/home'); //
             } else {
                 await registerUser(form);
                 setIsLogin(true);
