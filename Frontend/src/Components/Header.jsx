@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom"; // ← Import de useNavigate
 import logo from "../assets/Logo.svg";
 import icon1 from "../assets/Group 4.svg";
 import icon2 from "../assets/Vector 18.svg";
@@ -6,6 +7,8 @@ import icon3 from "../assets/Group 2.svg";
 import icon4 from "../assets/Group 12.svg";
 
 export default function Header() {
+    const navigate = useNavigate(); // ← Hook pour naviguer
+
     return (
         <header
             className="relative w-full flex-shrink-0 bg-[#fd6f2f]"
@@ -48,9 +51,15 @@ export default function Header() {
                 className="absolute flex flex-row gap-[48.2px] items-end"
                 style={{ left: 1122, top: 31 }}
             >
-                {[icon1, icon2, icon3, icon4].map((src, i) => (
-                    <img key={i} src={src} alt="" className="h-[20px] w-auto" />
-                ))}
+                <img src={icon1} alt="icon1" className="h-[20px] w-auto" />
+                <img src={icon2} alt="icon2" className="h-[20px] w-auto" />
+                <img src={icon3} alt="icon3" className="h-[20px] w-auto" />
+                <img
+                    src={icon4}
+                    alt="Se connecter"
+                    className="h-[20px] w-auto cursor-pointer"
+                    onClick={() => navigate("/login")} // ← redirection vers /login
+                />
             </div>
         </header>
     );

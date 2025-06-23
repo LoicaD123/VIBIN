@@ -1,114 +1,124 @@
 import { useState } from 'react';
-import { registerUser, loginUser } from '../Services/userService.js';
-import '../App.css';
+import { useNavigate } from 'react-router-dom'; // ⬅️ import nécessaire
+import { registerUser, loginUser } from '../Services/userService';
 
-export default function AuthPage() {
+export default function LoginPage() {
+    const navigate = useNavigate(); // ⬅️ hook de navigation
     const [isLogin, setIsLogin] = useState(true);
     const [form, setForm] = useState({
         username: '',
         email: '',
         password: '',
-        address: ''
+        address: '',
     });
+    const [error, setError] = useState('');
 
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
+        setError('');
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
             if (isLogin) {
-                // Login
                 const data = await loginUser({ email: form.email, password: form.password });
-                // stocker le token dans sessionStorage
                 sessionStorage.setItem('token', data.token);
-                alert(`Connexion réussie, bienvenue ${data.user.username || data.user.email} !`);
-                // Ici tu peux rediriger ou charger une page protégée
+                navigate('/dashboard'); // ⬅️ redirection après connexion
             } else {
-                // Register
                 await registerUser(form);
-                alert('Compte créé avec succès !');
-                // reset formulaire
-                setForm({ username: '', email: '', password: '', address: '' });
-                setIsLogin(true); // basculer vers connexion après inscription
+                setIsLogin(true);
             }
         } catch (err) {
-            alert(err.message);
+            setError(err.message || 'Une erreur est survenue');
         }
     };
 
     return (
-        <div className="form-container">
-            <h2>{isLogin ? 'Se connecter' : 'Créer un compte'}</h2>
-            <form onSubmit={handleSubmit} className="form">
-                {!isLogin && (
-                    <>
-                        <div className="form-group">
-                            <label htmlFor="username">Nom d’utilisateur</label>
-                            <input
-                                type="text"
-                                id="username"
+        <div className="min-h-screen flex items-center justify-center px-4 ">
+            <div className="max-w-md w-full rounded-[54px] shadow-lg p-8 bg-white">
+                <h1 className="text-[80px] font-[BebasNeuePro-ExpandedExtraBold] text-center text-[#1c1c1c]">
+                    Bienvenue
+                </h1>
+                <p className="text-center text-base text-[#1c1c1c]">
+                    {isLogin ? 'Ravie de vous revoir parmi nous !' : 'Créez un compte pour démarrer'}
+                </p>
+                {error && <div className="text-red-500 text-sm text-center">{error}</div>}
+
+                <form onSubmit={handleSubmit} className="flex flex-col items-center space-y-4 mb-6">
+                    {!isLogin && (
+                        <>
+                            <Input
+                                label="Nom d’utilisateur"
                                 name="username"
                                 value={form.username}
                                 onChange={handleChange}
-                                required={!isLogin}
+                                required
                             />
-                        </div>
-
-                        <div className="form-group">
-                            <label htmlFor="address">Adresse</label>
-                            <input
-                                type="text"
-                                id="address"
+                            <Input
+                                label="Adresse"
                                 name="address"
                                 value={form.address}
                                 onChange={handleChange}
-                                required={!isLogin}
+                                required
                             />
-                        </div>
-                    </>
-                )}
-
-                <div className="form-group">
-                    <label htmlFor="email">Email</label>
-                    <input
+                        </>
+                    )}
+                    <Input
+                        label="Adresse Mail"
                         type="email"
-                        id="email"
                         name="email"
                         value={form.email}
                         onChange={handleChange}
                         required
                     />
-                </div>
-
-                <div className="form-group">
-                    <label htmlFor="password">Mot de passe</label>
-                    <input
+                    <Input
+                        label="Mot de passe"
                         type="password"
-                        id="password"
                         name="password"
                         value={form.password}
                         onChange={handleChange}
                         required
                     />
+
+                    <button
+                        type="submit"
+                        className="w-[364px] h-[52px] bg-[#1c1c1c] text-white font-bold rounded-[13px] hover:bg-gray-800 transition flex items-center justify-center"
+                        style={{ fontSize: '26px' }}
+                    >
+                        {isLogin ? 'Se Connecter' : 'S’inscrire'}
+                    </button>
+                </form>
+
+                <div className="flex justify-center">
+                    <button
+                        onClick={() => setIsLogin(!isLogin)}
+                        className="h-[52px] w-[364px] text-indigo-600 hover:bg-gray-100 font-bold flex items-center justify-center text-[1.3rem] rounded-[13px] transition border border-[#e5e7eb]"
+                        style={{ fontSize: 'calc(0.4 * 52px)' }}
+                    >
+                        {isLogin ? "Pas encore de compte ? S'inscrire" : 'Déjà inscrit ? Se connecter'}
+                    </button>
                 </div>
+            </div>
+        </div>
+    );
+}
 
-                <button type="submit" className="btn">
-                    {isLogin ? 'Se connecter' : 'S’inscrire'}
-                </button>
-            </form>
-
-            <p style={{ marginTop: '1rem' }}>
-                {isLogin ? "Pas encore de compte ? " : "Déjà inscrit ? "}
-                <button
-                    type="button"
-                    onClick={() => setIsLogin(!isLogin)}
-                    style={{ color: 'blue', background: 'none', border: 'none', cursor: 'pointer' }}
-                >
-                    {isLogin ? 'Créer un compte' : 'Se connecter'}
-                </button>
-            </p>
+// Composant Input réutilisable
+function Input({ label, type = 'text', name, value, onChange, required }) {
+    return (
+        <div className="flex items-end w-[364px] h-[52px] px-[18px] py-[14px] gap-[6px] bg-white rounded-[13px]">
+            <input
+                id={name}
+                name={name}
+                type={type}
+                placeholder={label}
+                value={value}
+                onChange={onChange}
+                required={required}
+                style={{ fontSize: 'calc(0.4 * 52px)' }}
+                className="w-full h-full bg-white rounded-[6px] outline-none leading-none text-[#1c1c1c] placeholder-[#9ca3af]"
+            />
         </div>
     );
 }
